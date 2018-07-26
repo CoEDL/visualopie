@@ -34,6 +34,9 @@ library(visualopie)
 run_visualopie()
 ```
 
+### Visual instructions for installation and running app
+...
+
 ## Tech Stack
 R with the following required packages:
 * [Shiny](https://shiny.rstudio.com/)
