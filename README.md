@@ -53,3 +53,6 @@ Author: W. Lee Pang, PhD
 
 ## Screenshots
 <img src="docs/img/navigating.gif" />
+
+## Issues to be fixed in upcoming patch
+* Windows has problems detecting Android Tablet due to security issues. Windows will still be able to load logs from USB or from computer.
