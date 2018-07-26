@@ -1,0 +1,23 @@
+/*
+** OPIE Visualiser Custom CSS
+*/
+
+/*
+** RESOURCES
+*/
+ @font-face {
+ 	font-family: Roboto-Bold;
+ 	src: url(www/fonts/Roboto-Bold.ttf);
+ 	font-weight: normal;
+ }
+
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+/*
+** Main header
+*/
+ .main-header .logo {
+        font-family: 'Lato', "Georgia", "Arial", sans-serif;
+        font-weight: bold;
+        font-size: 20px;
+}

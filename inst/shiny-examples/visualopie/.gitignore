@@ -1,0 +1,17 @@
+#' R .gitignore file
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+.Ruserdata
+
+# RStudio files
+.Rproj.user/
+.Rproj
+
+# PDF Files
+pdfs/*
+.Rproj.user

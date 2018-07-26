@@ -1,0 +1,19 @@
+Package: visualopie
+Title: VisualOpie
+Version: 0.0.0.9000
+Authors@R: c(
+	person("Aninda", "Saha", email = "a.saha@uq.net.au", role = c("aut", "cre")),
+	person("James", "Nguyen", email = "j.nguyen@uq.net.au", role = c("aut"))
+	)
+Description: VisualOpie is a web-based tool which is used for visualising logs created
+			by the indigenous language robots developed by the UQ Social Robotics Lab.		
+Depends: R (>= 3.5.0)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: shiny,
+		shinydashboard,
+		tidyverse,
+		data.table,
+		DT,
+		readr
