@@ -32,9 +32,6 @@ In the R console:
 install.packages("devtools") # If not already installed.
 devtools::install_github("CoEDL/visualopie")
 ```
-
-<img src="inst/shiny-examples/visualopie/docs/img/installation.gif" />
-
 Installation will also install package dependencies detailed in the 'Tech Stack' section.
 
 ### Run app
@@ -44,7 +41,7 @@ run_visualopie()
 ```
 
 ### Visual instructions for installation and running app
-Coming soon.
+<img src="inst/shiny-examples/visualopie/docs/img/installation.gif" />
 
 ## Tech Stack
 R with the following required packages:
