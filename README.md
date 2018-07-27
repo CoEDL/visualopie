@@ -33,6 +33,8 @@ install.packages("devtools") # If not already installed.
 devtools::install_github("CoEDL/visualopie")
 ```
 
+<img src="inst/shiny-examples/visualopie/docs/img/installation.gif" />
+
 Installation will also install package dependencies detailed in the 'Tech Stack' section.
 
 ### Run app
