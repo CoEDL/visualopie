@@ -224,20 +224,20 @@ mainTable <- function(logs) {
       mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
       mainlog$type <- c(mainlog$type, "language")
       mainlog$value <- c(mainlog$value, sub("\t.*", "", langs[lid]))
-      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", langs[lid])) # TODO: FIX REGEX
-      mainlog$session <- c(mainlog$session, sub("_log", "", basename(logs$main[id])))
+      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", langs[lid]))
+      mainlog$session <- c(mainlog$session, sub("_log.txt", "", basename(logs$main[id])))
     }
 
     for (aid in 1:length(acts)) {
       mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
       mainlog$type <- c(mainlog$type, "activity")
       mainlog$value <- c(mainlog$value, sub("\t.*", "", acts[aid]))
-      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", acts[aid])) # TODO: FIX REGEX
-      mainlog$session <- c(mainlog$session, sub("_log", "", basename(logs$main[id])))
+      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", acts[aid]))
+      mainlog$session <- c(mainlog$session, sub("_log.txt", "", basename(logs$main[id])))
 
     }
 
-    mainTbl <<- data.table(mainlog$name, mainlog$type, mainlog$value, mainlog$times, mainlog$session) %>%
+    mainTbl <- data.table(mainlog$name, mainlog$type, mainlog$value, as.numeric(mainlog$times), mainlog$session) %>%
       setNames(c("name", "type", "value", "times", "session"))
 
   }
@@ -496,11 +496,11 @@ start_visualisation <- function(data) {
     # callModule(update_user_selector, "user", data = data[[3]])
 
     # User Page - Visualisers
-    callModule(plot_user_language_stats, "user", data = data[[3]])
+    callModule(plot_user_language_stats, "user", data = data[[4]])
 
     # User Page Update, update the selector first (Default - have all users selected)
-    callModule(update_user_selector, "user", data = data[[3]])
-    callModule(update_user_stats, "user", data = data[[3]])
+    callModule(update_user_selector, "user", data = data[[4]])
+    callModule(update_user_stats, "user", data = data[[4]])
 
     # Success
     showUINotification("Robot logs visualised!")

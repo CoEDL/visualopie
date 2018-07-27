@@ -2,14 +2,14 @@
 
 user_ui <- function(id) {
   #' UI for user tab where user-centric data will be displayed.
-  #' 
-  #' @param id - tab id 
-  
+  #'
+  #' @param id - tab id
+
   ns <- NS(id)
-  
+
   tabItem(
-    tabName = id, 
-    
+    tabName = id,
+
     fluidRow(
       class = "userRow",
       box(
@@ -24,7 +24,7 @@ user_ui <- function(id) {
         )
       )
     ),
-    
+
     fluidRow(
       class = "userRow",
       box(
@@ -43,33 +43,35 @@ user_ui <- function(id) {
 update_user_selector <- function(input, output, session, data = NULL) {
   #' Updates the user select input for the user page.
   #' This function will be called upon data load to initialise and can be called again.
-  #' 
+  #'
   #' To get the options selected use input$userSelector.
-  #' 
+  #'
   #' @param input - Shiny inputs
   #' @param output - Shiny outputs
   #' @param session - Current shiny session
   #' @param data - main raw data table from robot.
-  
+
   updateSelectInput(session, "userSelector", choices = unique(data$name), selected = unique(data$name))
 }
 
 plot_user_language_stats <- function(input, output, session, data = NULL) {
   #' Plots bar and pie charts for language usage for user(s).
   #' Update with update_user_stats event.
-  #' 
+  #'
   #' @param input - Shiny inputs
   #' @param output - Shiny outputs
   #' @param session - Current shiny session
   #' @param data - main raw data table from robot
-  
+
   # Get relevant data for languages only
-  languageDT <- data %>% group_by(name, session) %>% count(language)
+  languageDT <- filter(data, type == 'language')
+
   output$userLanguageBar <- renderPlot({
-    ggplot(languageDT, aes(x = language, y = n, fill = language, label = n)) + 
-      geom_bar(position = "dodge", stat = "identity") + facet_wrap(~name) + 
+    ggplot(languageDT, aes(x = value, y = times, fill = value, label = times)) +
+      geom_bar(position = "dodge", stat = "identity") + facet_wrap(~name) +
       labs(x = "Languages", y = "", title = "Language Usage Count for Users") +
-      scale_y_continuous(breaks = seq(0, max(languageDT$n), 2), lim = c(0, max(languageDT$n))) +
+      scale_y_continuous(breaks = seq(0, max(languageDT$times), 2), limits = c(0, max(languageDT$times))) +
+      geom_text(label = languageDT$times, vjust = -.25) +
       theme(plot.title=element_text(size = 16, face = 'bold', hjust = 0.5),
             axis.title=element_text(size = 12, face = 'bold'),
             axis.text.x=element_text(size = 12, face = 'bold'),
@@ -80,14 +82,14 @@ plot_user_language_stats <- function(input, output, session, data = NULL) {
 
 update_user_stats <- function(input, output, session, data = NULL) {
   #' Update the user data based on selector.
-  #' 
+  #'
   #' @param input - Shiny inputs
   #' @param output - Shiny outputs
   #' @param session - Current shiny session
-  
+
   observeEvent(input$userUpdateBtn, {
     tmp <- data %>% filter(name %in% input$userSelector)
     plot_user_language_stats(input, output, session, data = tmp)
   })
-  
+
 }
