@@ -30,7 +30,8 @@ user_ui <- function(id) {
       box(
         title = tags$b("User usage stats"), status = "primary", solidHeader = TRUE, width = 12, collapsible = TRUE,
         fluidRow(
-          column(width = 12, plotOutput(ns("userLanguageBar")))
+          column(width = 12, plotOutput(ns("userLanguageBar"))),
+          column(width = 12, plotOutput(ns("userActivityBar")))
         )
       )
     ),
@@ -80,6 +81,32 @@ plot_user_language_stats <- function(input, output, session, data = NULL) {
   })
 }
 
+plot_user_activity_stats <- function(input, output, session, data = NULL) {
+  #' Plots bar and pie charts for activity usage for user(s).
+  #' Update with update_user_stats event.
+  #'
+  #' @param input - Shiny inputs
+  #' @param output - Shiny outputs
+  #' @param session - Current shiny session
+  #' @param data - main raw data table from robot
+
+  # Get relevant data for languages only
+  languageDT <- filter(data, type == 'activity')
+
+  output$userActivityBar <- renderPlot({
+    ggplot(languageDT, aes(x = value, y = times, fill = value, label = times)) +
+      geom_bar(position = "dodge", stat = "identity") + facet_wrap(~name) +
+      labs(x = "Activities", y = "", title = "Activity Usage Count for Users") +
+      scale_y_continuous(breaks = seq(0, max(languageDT$times), 2), limits = c(0, max(languageDT$times))) +
+      geom_text(label = languageDT$times, vjust = -.25) +
+      theme(plot.title=element_text(size = 16, face = 'bold', hjust = 0.5),
+            axis.title=element_text(size = 12, face = 'bold'),
+            axis.text.x=element_text(size = 12, face = 'bold'),
+            legend.title=element_blank(),
+            legend.position = 'bottom')
+  })
+}
+
 update_user_stats <- function(input, output, session, data = NULL) {
   #' Update the user data based on selector.
   #'
@@ -90,6 +117,7 @@ update_user_stats <- function(input, output, session, data = NULL) {
   observeEvent(input$userUpdateBtn, {
     tmp <- data %>% filter(name %in% input$userSelector)
     plot_user_language_stats(input, output, session, data = tmp)
+    plot_user_activity_stats(input, output, session, data = tmp)
   })
 
 }

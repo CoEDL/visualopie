@@ -497,6 +497,7 @@ start_visualisation <- function(data) {
 
     # User Page - Visualisers
     callModule(plot_user_language_stats, "user", data = data[[4]])
+    callModule(plot_user_activity_stats, "user", data = data[[4]])
 
     # User Page Update, update the selector first (Default - have all users selected)
     callModule(update_user_selector, "user", data = data[[4]])
