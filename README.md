@@ -17,7 +17,7 @@ Aninda Saha (a.saha@uq.net.au), James Nguyen (j.nguyen@uq.net.au)
 ## Acknowlegdements
 OPIE is part of the OPAL project at the University of Queensland, within the Social Robotics Group which is part of the [ITEE Co-Innovation Group](http://www.itee.uq.edu.au/research/co-innovation).
 
-OPIE itself is a collaborative project with the Ngukurr community, and [Ngukurr Language Centre](http://www.ngukurrlc.org.au/) in Australia. [More information](http://www.itee.uq.edu.au/research/projects/opal/ngukurr).
+The Indigenous Language Robot project is a collaborative project with the Ngukurr community, and [Ngukurr Language Centre](http://www.ngukurrlc.org.au/) in Australia [More information](http://www.itee.uq.edu.au/research/projects/opal/ngukurr).
 
 The project was supervised by [Dr Gautier Durantin](http://gdurantin.com/).
 
@@ -32,9 +32,6 @@ In the R console:
 install.packages("devtools") # If not already installed.
 devtools::install_github("CoEDL/visualopie")
 ```
-
-<img src="inst/shiny-examples/visualopie/docs/img/installation.gif" />
-
 Installation will also install package dependencies detailed in the 'Tech Stack' section.
 
 ### Run app
