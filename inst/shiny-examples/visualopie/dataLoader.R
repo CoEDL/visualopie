@@ -224,7 +224,7 @@ mainTable <- function(logs) {
       mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
       mainlog$type <- c(mainlog$type, "language")
       mainlog$value <- c(mainlog$value, sub("\t.*", "", langs[lid]))
-      mainlog$times <- c(mainlog$times, sub("*.\t", "", langs[lid])) # TODO: FIX REGEX
+      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", langs[lid])) # TODO: FIX REGEX
       mainlog$session <- c(mainlog$session, sub("_log", "", basename(logs$main[id])))
     }
 
@@ -232,7 +232,7 @@ mainTable <- function(logs) {
       mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
       mainlog$type <- c(mainlog$type, "activity")
       mainlog$value <- c(mainlog$value, sub("\t.*", "", acts[aid]))
-      mainlog$times <- c(mainlog$times, sub("*.\t", "", acts[aid])) # TODO: FIX REGEX
+      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", acts[aid])) # TODO: FIX REGEX
       mainlog$session <- c(mainlog$session, sub("_log", "", basename(logs$main[id])))
 
     }
