@@ -13,9 +13,8 @@ Welcome to VisualOPIE! We aim to provide the best possible user interaction with
 
 <img src="img/navigating.gif" />
 
-<a name = "select">
+<a name = "select"><a/>
 ## Selecting logs folder
-<a/>
 
 1. Click on the button labeled '...'<br /><br />
 2. A file browser window will now open. You now need to select where you want to load your log files from.
