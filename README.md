@@ -17,13 +17,13 @@ Aninda Saha (a.saha@uq.net.au), James Nguyen (j.nguyen@uq.net.au)
 ## Acknowlegdements
 OPIE is part of the OPAL project at the University of Queensland, within the Social Robotics Group which is part of the [ITEE Co-Innovation Group](http://www.itee.uq.edu.au/research/co-innovation).
 
-The Indigenous Language Robot project is a collaborative project with the Ngukurr community, and [Ngukurr Language Centre](http://www.ngukurrlc.org.au/) in Australia [More information](http://www.itee.uq.edu.au/research/projects/opal/ngukurr).
+The Indigenous Language Robot project is a collaborative project with the Ngukurr community, and [Ngukurr Language Centre](http://www.ngukurrlc.org.au/) in Australia. [More information](http://www.itee.uq.edu.au/research/projects/opal/ngukurr).
 
 The project was supervised by [Dr Gautier Durantin](http://gdurantin.com/).
 
 ## Usage
 ### User Guides
-[User Guides](docs/README.md) : For general guides on how to use VisualOPIE.
+[User Guides](/inst/shiny-examples/visualopie/docs/README.md) : For general guides on how to use VisualOPIE.
 
 ### Installation
 In the R console:
