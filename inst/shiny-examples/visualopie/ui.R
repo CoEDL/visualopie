@@ -20,15 +20,15 @@ ui <- dashboardPage(
   dashboardHeader(
     title = "VisualOPIE",
     titleWidth = WIDTH
-  ), 
+  ),
 
   dashboardSidebar(
-    width = WIDTH, 
+    width = WIDTH,
     sidebarMenu(
       id = "sidebar",
 
-      menuItem("User", 
-               tabName = "user", 
+      menuItem("User",
+               tabName = "user",
                icon = icon("users")),
       menuItem("Language",
                tabName = "language",
@@ -36,7 +36,7 @@ ui <- dashboardPage(
       menuItem("Activity",
                tabName = "activity",
                icon = icon("bullseye")),
-      menuItem("Dashboard", 
+      menuItem("Dashboard",
                tabName = "dashboard",
                icon = icon("dashboard"))
       # Raw Data shows a tab with developer data tables.
@@ -45,13 +45,13 @@ ui <- dashboardPage(
       #          icon = icon("database")),
     )
   ),
-  
+
   dashboardBody(
     # Custom style sheet link for www/custom.css
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
     ),
-    
+
     # Directory selector and data loading functionality, on each page.
     fluidRow(
       # Main wrapper box
@@ -66,9 +66,9 @@ ui <- dashboardPage(
         # File load options
         box(
           title = tags$b("Options"), status = "info", width = 6,
-          radioButtons("loadOpts", 
-                       choices = list("Choose own folder" = 1, "Load from OPIE" = 2), 
-                       selected = 1, inline = TRUE, 
+          radioButtons("loadOpts",
+                       choices = list("Choose own folder" = 1, "Load from OPIE" = 2),
+                       selected = 1, inline = TRUE,
                        label = "Choose where you are loading your logs from.")
         ),
         # Statistics for logs loaded, also acts as a visual indicator of success.
@@ -80,7 +80,7 @@ ui <- dashboardPage(
         )
       )
     ),
-    
+
     # Pages for each section of VisualOPIE, acts as tabs selectable on the sidebar.
     tabItems(
       user_ui("user"),
