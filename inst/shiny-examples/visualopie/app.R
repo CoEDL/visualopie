@@ -2,8 +2,8 @@
 ## Run Shiny App
 ##################
 
-source("ui.R")
-source("server.R")
+# source("ui.R")
+# source("server.R")
 
 # Run App
-shinyApp(ui, server)
+runApp('inst/shiny-examples/visualopie', launch.browser = TRUE)
