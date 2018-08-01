@@ -91,7 +91,7 @@ dataLoader <- function(input, output, session) {
 
     # Number of Profiles
     if(!is.null(memoryGameTbl)) {
-      userCount <- nrow(memoryGameTbl %>% group_by(name) %>% summarise(n_distinct(name)))
+      userCount <- nrow(mainLogsTbl %>% group_by(name) %>% summarise(n_distinct(name)))
       numUsersDialogue(input, output, session, userCount)
 
       langCount <- nrow(memoryGameTbl %>% group_by(language) %>% summarise(n_distinct(name)))
