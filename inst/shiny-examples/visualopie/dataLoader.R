@@ -17,101 +17,106 @@ dataLoader <- function(input, output, session) {
 
   # Parse and visualise when load button hit.
   observeEvent(input$loadButton, {
-    main_start <- Sys.time()
-    # Check if loading from OPIE -> append OPIE's log path.
-    if(input$loadOpts == 2) {
-      if(Sys.info()['sysname'] == "Windows") {
-        logPath <<- paste(logPath, OPIE_DEFAULT_LOGS_WIN, sep = "")
-      } else {
-        logPath <<- paste(logPath, OPIE_DEFAULT_LOGS, sep = "")
-      }
-    }
+    # Show path selected
+    output$results = renderText({
+      input$mydata
+    })
 
-    # print("*** START ***")
-    # start_time <- Sys.time()
-    # Empty list of folders found in selected device/folder
-    folderList <- c()
-    if(!is.null(logPath)) {
-      # Get a list of all folders, including root path selected by user (or OPIE's log folder)
-      folderList <- list.dirs(path = logPath, full.names = TRUE, recursive = FALSE)
-      folderList <- grep(folderList, pattern = "/Unity|/ExternalAssets", inv = TRUE, value = TRUE)
-      folderList <- c(folderList, logPath)
-    }
-    # end_time <- Sys.time()
-    # print(paste0("Get folder paths - Time taken:", end_time - start_time))
-    # Emtpy list of faciliator logs as data tables
-    facilRawTbls <- list(NULL, NULL)
-
-    # Vector of paths to logs from robot separated into types
-    logsFromRobot <- c()
-
-    # start_time <- Sys.time()
-    # Individual facilitator logs as data tables in a list
-    logs_from_facil <- facilLogs(input, output, session, folderList)
-    # end_time <- Sys.time()
-    # print(paste0("Get facil logs - Time taken:", end_time - start_time))
-
-    # start_time <- Sys.time()
-    # Vector of paths to all robot logs by type
-    logsFromRobot <- robotLogs(folderList)
-    # end_time <- Sys.time()
-    # print(paste0("Get robot logs - Time taken:", end_time - start_time))
-
-    # Table of memory game data
-    memoryGameTbl <<- NULL
-
-    # Table for main logs
-    mainLogsTbl <<- NULL
-
-    # start_time <- Sys.time()
-    if(length(logs_from_facil) == 0) {
-      showUINotification("No facilitator logs found.", msgType = "error")
-    } else {
-      # bind individual tables together, with session marker.
-      facilRawTbls <- facilTable(logs_from_facil)
-    }
-    # end_time <- Sys.time()
-    # print(paste0("Facil table - Time taken:", end_time - start_time))
-
-    # start_time <- Sys.time()
-    if(length(logsFromRobot$memory) == 0) {
-      showUINotification("No robot logs found.", msgType = "error")
-    } else {
-      # form robot log data tables
-      memoryGameTbl <<- memoryLogs(logsFromRobot)
-      mainLogsTbl <<- mainTable(logsFromRobot)
-    }
-    # end_time <- Sys.time()
-    # print(paste0("Robot table - Time taken:", end_time - start_time))
-
-    # start_time <- Sys.time()
-    # Basic log statistics
-    numLogs <- length(logs_from_facil) + sum(lengths(logsFromRobot)) - length(logsFromRobot$rejected)
-    infoDialogue(input, output, session, numLogs)
-
-    # Number of Profiles
-    if(!is.null(memoryGameTbl)) {
-      userCount <- nrow(mainLogsTbl %>% group_by(name) %>% summarise(n_distinct(name)))
-      numUsersDialogue(input, output, session, userCount)
-
-      langCount <- nrow(memoryGameTbl %>% group_by(language) %>% summarise(n_distinct(name)))
-      numLangDialogue(input, output, session, langCount)
-    }
-
-    # Update Activity Count + Plot the associated pie chart
-    callModule(activity_stats_update, "activity", data = logsFromRobot)
-    # end_time <- Sys.time()
-    # print(paste0("Log stats - Time taken:", end_time - start_time))
-
-    # start_time <- Sys.time()
-    # Start all visualisations (see function in this script - 'dataLoader.R')
-    vizData = list(facilRawTbls[[1]], facilRawTbls[[2]], memoryGameTbl, mainLogsTbl)
-    start_visualisation(vizData)
-    # end_time <- Sys.time()
-    # print(paste0("Viz - Time taken:", end_time - start_time))
-    # main_end <- Sys.time()
-    # print(paste0("TOTAL TIME:", main_end - main_start))
-    # print("*** END ***")
+    # main_start <- Sys.time()
+    # # Check if loading from OPIE -> append OPIE's log path.
+    # if(input$loadOpts == 2) {
+    #   if(Sys.info()['sysname'] == "Windows") {
+    #     logPath <<- paste(logPath, OPIE_DEFAULT_LOGS_WIN, sep = "")
+    #   } else {
+    #     logPath <<- paste(logPath, OPIE_DEFAULT_LOGS, sep = "")
+    #   }
+    # }
+    #
+    # # print("*** START ***")
+    # # start_time <- Sys.time()
+    # # Empty list of folders found in selected device/folder
+    # folderList <- c()
+    # if(!is.null(logPath)) {
+    #   # Get a list of all folders, including root path selected by user (or OPIE's log folder)
+    #   folderList <- list.dirs(path = logPath, full.names = TRUE, recursive = FALSE)
+    #   folderList <- grep(folderList, pattern = "/Unity|/ExternalAssets", inv = TRUE, value = TRUE)
+    #   folderList <- c(folderList, logPath)
+    # }
+    # # end_time <- Sys.time()
+    # # print(paste0("Get folder paths - Time taken:", end_time - start_time))
+    # # Emtpy list of faciliator logs as data tables
+    # facilRawTbls <- list(NULL, NULL)
+    #
+    # # Vector of paths to logs from robot separated into types
+    # logsFromRobot <- c()
+    #
+    # # start_time <- Sys.time()
+    # # Individual facilitator logs as data tables in a list
+    # logs_from_facil <- facilLogs(input, output, session, folderList)
+    # # end_time <- Sys.time()
+    # # print(paste0("Get facil logs - Time taken:", end_time - start_time))
+    #
+    # # start_time <- Sys.time()
+    # # Vector of paths to all robot logs by type
+    # logsFromRobot <- robotLogs(folderList)
+    # # end_time <- Sys.time()
+    # # print(paste0("Get robot logs - Time taken:", end_time - start_time))
+    #
+    # # Table of memory game data
+    # memoryGameTbl <<- NULL
+    #
+    # # Table for main logs
+    # mainLogsTbl <<- NULL
+    #
+    # # start_time <- Sys.time()
+    # if(length(logs_from_facil) == 0) {
+    #   showUINotification("No facilitator logs found.", msgType = "error")
+    # } else {
+    #   # bind individual tables together, with session marker.
+    #   facilRawTbls <- facilTable(logs_from_facil)
+    # }
+    # # end_time <- Sys.time()
+    # # print(paste0("Facil table - Time taken:", end_time - start_time))
+    #
+    # # start_time <- Sys.time()
+    # if(length(logsFromRobot$memory) == 0) {
+    #   showUINotification("No robot logs found.", msgType = "error")
+    # } else {
+    #   # form robot log data tables
+    #   memoryGameTbl <<- memoryLogs(logsFromRobot)
+    #   mainLogsTbl <<- mainTable(logsFromRobot)
+    # }
+    # # end_time <- Sys.time()
+    # # print(paste0("Robot table - Time taken:", end_time - start_time))
+    #
+    # # start_time <- Sys.time()
+    # # Basic log statistics
+    # numLogs <- length(logs_from_facil) + sum(lengths(logsFromRobot)) - length(logsFromRobot$rejected)
+    # infoDialogue(input, output, session, numLogs)
+    #
+    # # Number of Profiles
+    # if(!is.null(memoryGameTbl)) {
+    #   userCount <- nrow(mainLogsTbl %>% group_by(name) %>% summarise(n_distinct(name)))
+    #   numUsersDialogue(input, output, session, userCount)
+    #
+    #   langCount <- nrow(memoryGameTbl %>% group_by(language) %>% summarise(n_distinct(name)))
+    #   numLangDialogue(input, output, session, langCount)
+    # }
+    #
+    # # Update Activity Count + Plot the associated pie chart
+    # callModule(activity_stats_update, "activity", data = logsFromRobot)
+    # # end_time <- Sys.time()
+    # # print(paste0("Log stats - Time taken:", end_time - start_time))
+    #
+    # # start_time <- Sys.time()
+    # # Start all visualisations (see function in this script - 'dataLoader.R')
+    # vizData = list(facilRawTbls[[1]], facilRawTbls[[2]], memoryGameTbl, mainLogsTbl)
+    # start_visualisation(vizData)
+    # # end_time <- Sys.time()
+    # # print(paste0("Viz - Time taken:", end_time - start_time))
+    # # main_end <- Sys.time()
+    # # print(paste0("TOTAL TIME:", main_end - main_start))
+    # # print("*** END ***")
     }
   )
 }

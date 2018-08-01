@@ -55,7 +55,6 @@ ui <- dashboardPage(
     # Directory selector and data loading functionality, on each page.
     fluidRow(
       includeScript("www/js/text.js"),
-      includeScript("www/js/getFolders.js"),
       # Main wrapper box
       box(
         title = tags$b("Load Data"), status = "primary", solidHeader = TRUE, width = 12, collapsible = TRUE,
@@ -67,8 +66,9 @@ ui <- dashboardPage(
                    tags$div(tags$label("Choose Folder", class="btn btn-primary",
                                        tags$input(id = "fileIn", webkitdirectory = TRUE,
                                                   type = "file", style="display: none;", onchange="pressed()"))),
-                   tags$label("No folder chosen", id = "noFile"),
-                   verbatimTextOutput("results"),
+                   tags$label("No folder has been selected.", id = "noFile"),
+                   # verbatimTextOutput("results", placeholder = T),
+                   textOutput("results", inline = FALSE),
                    tags$div(id="fileIn_progress", class="progress progress-striped active shiny-file-input-progress",
                             tags$div(class="progress-bar")
                    )
@@ -90,7 +90,8 @@ ui <- dashboardPage(
           infoBoxOutput("numUserBox", width = 4),
           infoBoxOutput("numLanguages", width = 4)
         )
-      )
+      ),
+      HTML("<script type='text/javascript' src='js/getFolders.js'></script>")
     ),
 
     # Pages for each section of VisualOPIE, acts as tabs selectable on the sidebar.
