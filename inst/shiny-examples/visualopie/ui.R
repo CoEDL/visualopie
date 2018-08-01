@@ -54,13 +54,25 @@ ui <- dashboardPage(
 
     # Directory selector and data loading functionality, on each page.
     fluidRow(
+      includeScript("www/js/text.js"),
+      includeScript("www/js/getFolders.js"),
       # Main wrapper box
       box(
         title = tags$b("Load Data"), status = "primary", solidHeader = TRUE, width = 12, collapsible = TRUE,
         # File Loader section
         box(
           title = tags$b("OPIE logs"), status = "info", width = 6,
-          directoryInput('directory', label = 'Select folder or device to load from', value = '~'),
+          tags$div(class="form-group shiny-input-container",
+                   tags$div(tags$label("Please select a folder to load from.")),
+                   tags$div(tags$label("Choose Folder", class="btn btn-primary",
+                                       tags$input(id = "fileIn", webkitdirectory = TRUE,
+                                                  type = "file", style="display: none;", onchange="pressed()"))),
+                   tags$label("No folder chosen", id = "noFile"),
+                   verbatimTextOutput("results"),
+                   tags$div(id="fileIn_progress", class="progress progress-striped active shiny-file-input-progress",
+                            tags$div(class="progress-bar")
+                   )
+          ),
           actionButton("loadButton", "Load Data")
         ),
         # File load options
