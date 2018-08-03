@@ -13,14 +13,18 @@ dataLoader <- function(input, output, session) {
   #' @param session
 
   # Run folder selection
-  folderSelect(input, output, session)
-
+  # folderSelect(input, output, session)
   # Parse and visualise when load button hit.
   observeEvent(input$loadButton, {
     # Show path selected
     output$results = renderText({
-      input$mydata
+      paste("<b>", input$chosenFolder, "</b>")
     })
+
+    files <- input$fileIn %>% filter(type != 'audio/wav')
+    print(files$datapath)
+    print(files$name)
+
 
     # main_start <- Sys.time()
     # # Check if loading from OPIE -> append OPIE's log path.

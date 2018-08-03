@@ -3,7 +3,6 @@ document.getElementById("fileIn").addEventListener("change", function(e) {
   let files = e.target.files;
   let fullPath = files[0].webkitRelativePath;
   var selectedPath = "Selected Folder: /" + fullPath.substring(0, fullPath.indexOf("/"));
-  console.log(selectedPath);
 
   // var arr = new Array(files.length*2);
   // for (let i=0; i<files.length; i++) {
@@ -16,6 +15,6 @@ document.getElementById("fileIn").addEventListener("change", function(e) {
   //
   //     }
 
-  Shiny.onInputChange("mydata", selectedPath);
+  Shiny.onInputChange("chosenFolder", selectedPath);
 
 });

@@ -68,7 +68,7 @@ ui <- dashboardPage(
                                                   type = "file", style="display: none;", onchange="pressed()"))),
                    tags$label("No folder has been selected.", id = "noFile"),
                    # verbatimTextOutput("results", placeholder = T),
-                   textOutput("results", inline = FALSE),
+                   htmlOutput("results", inline = FALSE),
                    tags$div(id="fileIn_progress", class="progress progress-striped active shiny-file-input-progress",
                             tags$div(class="progress-bar")
                    )
