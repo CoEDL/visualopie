@@ -1,9 +1,13 @@
-## dataLoader.R ## Main function for loading data files.
+## dataLoader.R ## Main function for loading data files. Note - There are commented out helpers for timing of load.
 
 source("global.R")
 source("utility.R")
 source('widgets/shiny-directory-input/directoryInput.R')
 source("dashboard.R")
+
+########################################
+## Main Data Loader for desktop package
+########################################
 
 dataLoader <- function(input, output, session) {
   #' Server function to handle operations instigated by the load button
@@ -116,219 +120,33 @@ dataLoader <- function(input, output, session) {
   )
 }
 
-facilTable <- function(logs_from_facil) {
-  #' Create data tables for developer processing from a list of all paths to facilitator logs.
-  #'
-  #' @param logs_from_facil - list of facilitator logs as direct paths.
+folderSelect <- function(input, output, session) {
+  #' Select a device or folder and store selected path to logPath global.
+  #' Assumes default is 'home'.
+  observeEvent(
+    ignoreNULL = TRUE,
+    eventExpr = {
+      input$directory
+    },
+    handlerExpr = {
+      if (input$directory > 0) {
+        # condition prevents handler execution on initial app launch
 
-  # start_time <- Sys.time()
-  stateData <<- rbindlist(logs_from_facil)
-  stateData[, "min_child"] <- -1
-  stateData[, "max_child"] <- -1
-  setnames(stateData, c("time","state","num_children","score","notes", "session", "duration",
-                        "dur_min", "min_child", "max_child"))
+        # launch the directory selection dialog with initial path read from the widget
+        path = choose.dir(default = readDirectoryInput(session, 'directory'))
 
-  # end_time <- Sys.time()
-  # print(paste0("> Facil Tbl state data - Time taken:", end_time - start_time))
-
-  # start_time <- Sys.time()
-  reducedData <<- collapsetbl(stateData)
-
-  reducedData <<- reducedData%>%
-    group_by(state)%>%
-    mutate(dur_min = duration/60)%>%
-    filter(duration <= (mean(duration)+2*sd(duration)) & duration >= (mean(duration)-2*sd(duration)) & duration >= 2.0)
-
-  # end_time <- Sys.time()
-  # print(paste0("> Facil table - reduced data - Time taken:", end_time - start_time))
-
-  tables <- list(stateData, reducedData)
-  return(tables)
-}
-
-memoryLogs <- function (logs) {
-  #' Builds the data table consisting of all memory game logs with valid data entries.
-  #' Logs without a level played are excluded.
-  #'
-  #' @param logs - vector of paths to each memory game log file.
-  #' @return data.table of memory game information.
-
-  mylist.names <- c("name", "language", "level", "correct", "incorrect", "session")
-  memlog <- vector("list", length(mylist.names))
-  names(memlog) <- mylist.names
-
-  # start_time <- Sys.time()
-  for(id in 1:length(logs$memory)) {
-    txt <- tolower(readLines(logs$memory[id]))
-    len <- length(search_phrase("level", txt))
-    if(len > 0) {
-      memlog$level <- c(memlog$level, search_phrase("level", txt))
-      memlog$correct <- c(memlog$correct, search_phrase("^correct", txt))
-      memlog$incorrect <- c(memlog$incorrect, search_phrase("^incorrect", txt))
-      memlog$name <- c(memlog$name, rep(search_phrase("name", txt), each = len))
-      memlog$language <- c(memlog$language, rep(search_phrase("language", txt), each = len))
-      memlog$session <- c(memlog$session, rep(sub("_log", "", basename(logs$memory[id])), each=len))
-    }
-  }
-
-  memTbl <- data.table(memlog$name, memlog$language, memlog$level, memlog$correct, memlog$incorrect, memlog$session) %>%
-    setNames(c("name", "language", "level", "correct", "incorrect", "session"))
-
-  # end_time <- Sys.time()
-  # print(paste0("> Memlogs table creation - Time taken:", end_time - start_time))
-
-  # start_time <- Sys.time()
-  memTbl <- memTbl %>%
-    mutate(score = as.numeric(sub(".*scored ", "", level))) %>%
-    mutate(level = sub(".*level ", "", level)) %>%
-    mutate(level = as.numeric(sub("\ :(.*)", "", level))) %>%
-    mutate(name = sub(".*: ", "", name)) %>%
-    mutate(correct = sub(".*: ", "", correct)) %>%
-    mutate(incorrect = sub(".*: ", "", incorrect)) %>%
-    mutate(language = sub(".*: ", "", language))
-
-  # end_time <- Sys.time()
-  # print(paste0(">Memlogs mutate table - Time taken:", end_time - start_time))
-
-  # start_time <- Sys.time()
-  # Order the logs by language
-  memTbl <- memTbl[order(memTbl$language, memTbl$level),]
-  # end_time <- Sys.time()
-  # print(paste0(">Mem logs order table - Time taken:", end_time - start_time))
-
-  return(memTbl)
-
-}
-
-mainTable <- function(logs) {
-
-  mainTbl <- NULL
-
-  mylist.names <- c("name", "type", "value", "times", "session")
-  mainlog <- vector("list", length(mylist.names))
-  names(mainlog) <- mylist.names
-
-  for(id in 1:length(logs$main)) {
-    txt <- tolower(readLines(logs$main[id]))
-
-    langid <- search_phrase("languages used:", txt, id = 1)
-    actid <- search_phrase("games played", txt, id = 1)
-    endid <- search_phrase("-----------", txt, id = 1)
-
-    langs <- txt[(langid+1):(actid-1)]
-    langs <- langs[langs != ""]
-    acts <- txt[(actid+1):(endid-1)]
-    acts <- acts[acts != ""]
-
-    for (lid in 1:length(langs)) {
-      mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
-      mainlog$type <- c(mainlog$type, "language")
-      mainlog$value <- c(mainlog$value, sub("\t.*", "", langs[lid]))
-      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", langs[lid]))
-      mainlog$session <- c(mainlog$session, sub("_log.txt", "", basename(logs$main[id])))
-    }
-
-    for (aid in 1:length(acts)) {
-      mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
-      mainlog$type <- c(mainlog$type, "activity")
-      mainlog$value <- c(mainlog$value, sub("\t.*", "", acts[aid]))
-      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", acts[aid]))
-      mainlog$session <- c(mainlog$session, sub("_log.txt", "", basename(logs$main[id])))
-
-    }
-
-    mainTbl <- data.table(mainlog$name, mainlog$type, mainlog$value, as.numeric(mainlog$times), mainlog$session) %>%
-      setNames(c("name", "type", "value", "times", "session"))
-
-  }
-
-  return(mainTbl)
-
-}
-
-
-robotLogs <- function(folderList) {
-  #' Gather robot logs and divide up by type.
-  #'
-  #' @param folderList - list of folders to search through, including selected root.
-  #' @return Vector of logs divided into activities.
-
-  logs <- c()
-
-  # start_time <- Sys.time()
-  # Search folders for logs
-  for(i in 1:length(folderList)) {
-    tempLogs <- grep(list.files(path = folderList[i], full.names = TRUE), pattern = "*.wav$", value = T, inv = T)
-    tempLogs <- grep(tempLogs, pattern = "_log", value = T)
-    logs <- c(logs, tempLogs)
-  }
-  # end_time <- Sys.time()
-  # print(paste0(">Robot logs - get files - Time taken:", end_time - start_time))
-
-  # Game log data setup
-  mylist.names <- c("memory", "repetition", "story", "main", "rejected")
-  gamelogs <- vector("list", length(mylist.names))
-  names(gamelogs) <- mylist.names
-
-  # start_time <- Sys.time()
-  # Compile valid log paths into gamelogs
-  if(length(logs) > 0) {
-    for(id in 1:length(logs)) {
-      txt <- tolower(read_file(logs[[id]]))
-
-      if(grepl("activity : memory game", txt, fixed = TRUE)) {
-        gamelogs$memory <- c(gamelogs$memory, logs[[id]])
-      } else if (grepl("activity : word repetition", txt, fixed = TRUE)) {
-        gamelogs$repetition <- c(gamelogs$repetition, logs[[id]])
-      } else if (grepl("activity : story", txt, fixed = TRUE)) {
-        gamelogs$story <- c(gamelogs$story, logs[[id]])
-      } else if (grepl("main", logs[[id]], fixed = TRUE)) {
-        gamelogs$main <- c(gamelogs$main, logs[[id]])
-      } else {
-        gamelogs$rejected <- c(gamelogs$rejected, logs[[id]])
+        # update the widget value
+        updateDirectoryInput(session, 'directory', value = tail(path, n = 1))
+        logPath <<- tail(path, n = 1)
       }
     }
-  }
-
-  gamelogs <<- gamelogs
-  # end_time <- Sys.time()
-  # print(paste0(">Robot logs compile game logs - Time taken:", end_time - start_time))
-
-  return(gamelogs)
+  )
 }
 
-infoDialogue <- function(input, output, session, numLogs) {
-  #' Output info box for logs
-  #'
-  #' @param numLogs - the number of logs loaded.
-  output$logsLoadedBox <- renderInfoBox({
-    infoBox(
-      tags$b("Logs Loaded"), numLogs, icon = icon("table"), color = "green"
-    )
-  })
-}
 
-numUsersDialogue <- function(input, output, session, numUsers) {
-  #' Updates the general number of users information box post data loading.
-  #'
-  #' @param numUsers - the number of users (numeric)
-  output$numUserBox <- renderInfoBox({
-    infoBox(
-      tags$b("Number of Profiles"), numUsers, icon = icon("users"), color = "green"
-    )
-  })
-}
-
-numLangDialogue <- function(input, output, session, numLangs) {
-  #' Updates the number of languages information box post data loading.
-  #'
-  #' @param numUsers - the number of users (numeric)
-  output$numLanguages <- renderInfoBox({
-    infoBox(
-      tags$b("Number of Languages"), numLangs, icon = icon("users"), color = "green"
-    )
-  })
-}
+##############################
+## Log Retrieval from folders
+##############################
 
 facilLogs <- function(input, output, session, folderList) {
   #' Get all log filenames with full path, excluding audio files.
@@ -403,27 +221,89 @@ facilLogs <- function(input, output, session, folderList) {
   return(logs)
 }
 
-folderSelect <- function(input, output, session) {
-  #' Select a device or folder and store selected path to logPath global.
-  #' Assumes default is 'home'.
-  observeEvent(
-    ignoreNULL = TRUE,
-    eventExpr = {
-      input$directory
-    },
-    handlerExpr = {
-      if (input$directory > 0) {
-        # condition prevents handler execution on initial app launch
+robotLogs <- function(folderList) {
+  #' Gather robot logs and divide up by type.
+  #'
+  #' @param folderList - list of folders to search through, including selected root.
+  #' @return Vector of logs divided into activities.
 
-        # launch the directory selection dialog with initial path read from the widget
-        path = choose.dir(default = readDirectoryInput(session, 'directory'))
+  logs <- c()
 
-        # update the widget value
-        updateDirectoryInput(session, 'directory', value = tail(path, n = 1))
-        logPath <<- tail(path, n = 1)
+  # start_time <- Sys.time()
+  # Search folders for logs
+  for(i in 1:length(folderList)) {
+    tempLogs <- grep(list.files(path = folderList[i], full.names = TRUE), pattern = "*.wav$", value = T, inv = T)
+    tempLogs <- grep(tempLogs, pattern = "_log", value = T)
+    logs <- c(logs, tempLogs)
+  }
+  # end_time <- Sys.time()
+  # print(paste0(">Robot logs - get files - Time taken:", end_time - start_time))
+
+  # Game log data setup
+  mylist.names <- c("memory", "repetition", "story", "main", "rejected")
+  gamelogs <- vector("list", length(mylist.names))
+  names(gamelogs) <- mylist.names
+
+  # start_time <- Sys.time()
+  # Compile valid log paths into gamelogs
+  if(length(logs) > 0) {
+    for(id in 1:length(logs)) {
+      txt <- tolower(read_file(logs[[id]]))
+
+      if(grepl("activity : memory game", txt, fixed = TRUE)) {
+        gamelogs$memory <- c(gamelogs$memory, logs[[id]])
+      } else if (grepl("activity : word repetition", txt, fixed = TRUE)) {
+        gamelogs$repetition <- c(gamelogs$repetition, logs[[id]])
+      } else if (grepl("activity : story", txt, fixed = TRUE)) {
+        gamelogs$story <- c(gamelogs$story, logs[[id]])
+      } else if (grepl("main", logs[[id]], fixed = TRUE)) {
+        gamelogs$main <- c(gamelogs$main, logs[[id]])
+      } else {
+        gamelogs$rejected <- c(gamelogs$rejected, logs[[id]])
       }
     }
-  )
+  }
+
+  gamelogs <<- gamelogs
+  # end_time <- Sys.time()
+  # print(paste0(">Robot logs compile game logs - Time taken:", end_time - start_time))
+
+  return(gamelogs)
+}
+
+
+########################
+## Data table builders
+########################
+
+facilTable <- function(logs_from_facil) {
+  #' Create data tables for developer processing from a list of all paths to facilitator logs.
+  #'
+  #' @param logs_from_facil - list of facilitator logs as direct paths.
+
+  # start_time <- Sys.time()
+  stateData <<- rbindlist(logs_from_facil)
+  stateData[, "min_child"] <- -1
+  stateData[, "max_child"] <- -1
+  setnames(stateData, c("time","state","num_children","score","notes", "session", "duration",
+                        "dur_min", "min_child", "max_child"))
+
+  # end_time <- Sys.time()
+  # print(paste0("> Facil Tbl state data - Time taken:", end_time - start_time))
+
+  # start_time <- Sys.time()
+  reducedData <<- collapsetbl(stateData)
+
+  reducedData <<- reducedData%>%
+    group_by(state)%>%
+    mutate(dur_min = duration/60)%>%
+    filter(duration <= (mean(duration)+2*sd(duration)) & duration >= (mean(duration)-2*sd(duration)) & duration >= 2.0)
+
+  # end_time <- Sys.time()
+  # print(paste0("> Facil table - reduced data - Time taken:", end_time - start_time))
+
+  tables <- list(stateData, reducedData)
+  return(tables)
 }
 
 collapsetbl <- function(dataTable) {
@@ -446,6 +326,153 @@ collapsetbl <- function(dataTable) {
 
   return(reduced)
 }
+
+memoryLogs <- function (logs) {
+  #' Builds the data table consisting of all memory game logs with valid data entries.
+  #' Logs without a level played are excluded.
+  #'
+  #' @param logs - vector of paths to each memory game log file.
+  #' @return data.table of memory game information.
+
+  mylist.names <- c("name", "language", "level", "correct", "incorrect", "session")
+  memlog <- vector("list", length(mylist.names))
+  names(memlog) <- mylist.names
+
+  # start_time <- Sys.time()
+  for(id in 1:length(logs$memory)) {
+    txt <- tolower(readLines(logs$memory[id]))
+    len <- length(search_phrase("level", txt))
+    if(len > 0) {
+      memlog$level <- c(memlog$level, search_phrase("level", txt))
+      memlog$correct <- c(memlog$correct, search_phrase("^correct", txt))
+      memlog$incorrect <- c(memlog$incorrect, search_phrase("^incorrect", txt))
+      memlog$name <- c(memlog$name, rep(search_phrase("name", txt), each = len))
+      memlog$language <- c(memlog$language, rep(search_phrase("language", txt), each = len))
+      memlog$session <- c(memlog$session, rep(sub("_log", "", basename(logs$memory[id])), each=len))
+    }
+  }
+
+  memTbl <- data.table(memlog$name, memlog$language, memlog$level, memlog$correct, memlog$incorrect, memlog$session) %>%
+    setNames(c("name", "language", "level", "correct", "incorrect", "session"))
+
+  # end_time <- Sys.time()
+  # print(paste0("> Memlogs table creation - Time taken:", end_time - start_time))
+
+  # start_time <- Sys.time()
+  memTbl <- memTbl %>%
+    mutate(score = as.numeric(sub(".*scored ", "", level))) %>%
+    mutate(level = sub(".*level ", "", level)) %>%
+    mutate(level = as.numeric(sub("\ :(.*)", "", level))) %>%
+    mutate(name = sub(".*: ", "", name)) %>%
+    mutate(correct = sub(".*: ", "", correct)) %>%
+    mutate(incorrect = sub(".*: ", "", incorrect)) %>%
+    mutate(language = sub(".*: ", "", language))
+
+  # end_time <- Sys.time()
+  # print(paste0(">Memlogs mutate table - Time taken:", end_time - start_time))
+
+  # start_time <- Sys.time()
+  # Order the logs by language
+  memTbl <- memTbl[order(memTbl$language, memTbl$level),]
+  # end_time <- Sys.time()
+  # print(paste0(">Mem logs order table - Time taken:", end_time - start_time))
+
+  return(memTbl)
+
+}
+
+mainTable <- function(logs) {
+  #' Builds the data table consisting of all main profile logs for each player detected.
+  #'
+  #' @param logs - vector of paths to each log to parse.
+  #' @return data.table of information from main logs.
+
+  mainTbl <- NULL
+
+  mylist.names <- c("name", "type", "value", "times", "session")
+  mainlog <- vector("list", length(mylist.names))
+  names(mainlog) <- mylist.names
+
+  for(id in 1:length(logs$main)) {
+    txt <- tolower(readLines(logs$main[id]))
+
+    langid <- search_phrase("languages used:", txt, id = 1)
+    actid <- search_phrase("games played", txt, id = 1)
+    endid <- search_phrase("-----------", txt, id = 1)
+
+    langs <- txt[(langid+1):(actid-1)]
+    langs <- langs[langs != ""]
+    acts <- txt[(actid+1):(endid-1)]
+    acts <- acts[acts != ""]
+
+    for (lid in 1:length(langs)) {
+      mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
+      mainlog$type <- c(mainlog$type, "language")
+      mainlog$value <- c(mainlog$value, sub("\t.*", "", langs[lid]))
+      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", langs[lid]))
+      mainlog$session <- c(mainlog$session, sub("_log.txt", "", basename(logs$main[id])))
+    }
+
+    for (aid in 1:length(acts)) {
+      mainlog$name <- c(mainlog$name, sub(".*: ", "", search_phrase("student", txt)))
+      mainlog$type <- c(mainlog$type, "activity")
+      mainlog$value <- c(mainlog$value, sub("\t.*", "", acts[aid]))
+      mainlog$times <- c(mainlog$times, sub("(.*)\t", "", acts[aid]))
+      mainlog$session <- c(mainlog$session, sub("_log.txt", "", basename(logs$main[id])))
+
+    }
+
+    mainTbl <- data.table(mainlog$name, mainlog$type, mainlog$value, as.numeric(mainlog$times), mainlog$session) %>%
+      setNames(c("name", "type", "value", "times", "session"))
+
+  }
+
+  return(mainTbl)
+
+}
+
+
+##########################################
+## Subsidiary statistics for logs loaded.
+##########################################
+
+infoDialogue <- function(input, output, session, numLogs) {
+  #' Output info box for logs
+  #'
+  #' @param numLogs - the number of logs loaded.
+  output$logsLoadedBox <- renderInfoBox({
+    infoBox(
+      tags$b("Logs Loaded"), numLogs, icon = icon("table"), color = "green"
+    )
+  })
+}
+
+numUsersDialogue <- function(input, output, session, numUsers) {
+  #' Updates the general number of users information box post data loading.
+  #'
+  #' @param numUsers - the number of users (numeric)
+  output$numUserBox <- renderInfoBox({
+    infoBox(
+      tags$b("Number of Profiles"), numUsers, icon = icon("users"), color = "green"
+    )
+  })
+}
+
+numLangDialogue <- function(input, output, session, numLangs) {
+  #' Updates the number of languages information box post data loading.
+  #'
+  #' @param numUsers - the number of users (numeric)
+  output$numLanguages <- renderInfoBox({
+    infoBox(
+      tags$b("Number of Languages"), numLangs, icon = icon("users"), color = "green"
+    )
+  })
+}
+
+
+##################
+## Visualisations
+##################
 
 start_visualisation <- function(data) {
   #' Start visualisations, after data logs processed.
