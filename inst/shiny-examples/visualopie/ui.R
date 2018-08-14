@@ -19,11 +19,11 @@ source("dataLoader.R")
 ui <- dashboardPage(
   dashboardHeader(
     title = "VisualOPIE",
-    titleWidth = WIDTH
+    titleWidth = MENU_WIDTH
   ),
 
   dashboardSidebar(
-    width = WIDTH,
+    width = MENU_WIDTH,
     sidebarMenu(
       id = "sidebar",
 
