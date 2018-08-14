@@ -349,9 +349,9 @@ mainTable <- function(logs) {
     txt <- tolower(readLines(logs$main[id]))
 
     # Get index for headings within main logs
-    langid <- search_phrase("languages used:", txt, id = 1)
-    actid <- search_phrase("games played", txt, id = 1)
-    endid <- search_phrase("-----------", txt, id = 1)
+    langid <- search_phrase("languages used:", txt, index = 1)
+    actid <- search_phrase("games played", txt, index = 1)
+    endid <- search_phrase("-----------", txt, index = 1)
 
     # Get information within headings
     langs <- txt[(langid+1):(actid-1)]
@@ -470,7 +470,7 @@ start_visualisation <- function(data) {
     # Language Visualisations
     callModule(lang_table_viz, "language", data = data[[3]])
     callModule(lang_stack_viz, "language", data = data[[3]])
-    callModule(lang_bar_plot, "language", data = data[[3]])
+    callModule(lang_words_plot, "language", data = data[[3]])
     callModule(plotWord, "language", data = data[[3]])
 
     # Update stack visualiser

@@ -39,7 +39,7 @@ search_phrase <- function(phrase, log, index = 0) {
   #' @param index - flag 0 if retrieving value, flag 1 if retrieving index.
   #' @return vector of lines of matched phrase as indexes or values.
 
-  if (id == 0) {
+  if (index == 0) {
     return(grep(phrase, log, value = TRUE))
   } else {
     return(grep(phrase, log, value = FALSE))
