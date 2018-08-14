@@ -8,3 +8,6 @@ OPIE_DEFAULT_LOGS_WIN <- "//Internal storage//Android//data//com.UQ.ILR//files" 
 
 # Standard sizing options
 MENU_WIDTH <- 250
+
+# Dev flag to show dev only sections
+SHOW_DEV <- TRUE
