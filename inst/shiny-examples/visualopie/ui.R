@@ -39,11 +39,9 @@ ui <- dashboardPage(
       menuItem("Dashboard",
                tabName = "dashboard",
                icon = icon("dashboard")),
-      if(SHOW_DEV) {
-        menuItem("Raw Data",
+      menuItem("Raw Data",
                  tabName = "raw",
                  icon = icon("database"))
-      }
     )
   ),
 
@@ -87,11 +85,11 @@ ui <- dashboardPage(
       user_ui("user"),
       lang_ui("language"),
       activity_ui("activity"),
-      dash_ui("dashboard"),
+      dash_ui("dashboard")
 
-      if(SHOW_DEV) {
-        raw_ui("raw")
-      }
+      # if(SHOW_DEV) {
+      #   raw_ui("raw")
+      # }
     )
   )
 )
