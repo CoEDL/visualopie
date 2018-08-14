@@ -38,10 +38,10 @@ ui <- dashboardPage(
                icon = icon("bullseye")),
       menuItem("Dashboard",
                tabName = "dashboard",
-               icon = icon("dashboard")),
-      menuItem("Raw Data",
-                 tabName = "raw",
-                 icon = icon("database"))
+               icon = icon("dashboard"))
+      # menuItem("Raw Data",
+      #            tabName = "raw",
+      #            icon = icon("database"))
     )
   ),
 
